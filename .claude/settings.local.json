@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFEATURE: Add leading number support and intelligent multi-file selection\n\nMajor improvements:\n- Add support for leading numbers: 01_test.jpg → 02_test.jpg, 01test.jpg → 02test.jpg\n- Implement smart multi-file selection: prevents naming conflicts by finding next available filenames\n- Groups files by pattern type and starts from highest number + 1\n- Checks directory for existing files to avoid collisions\n- Preserves leading zeros in all number formats\n\nTechnical changes:\n- Refactor pattern detection into _extract_pattern_info() helper method\n- Add _find_next_available_filenames() for collision-free filename generation\n- Fix path handling to extract basename before processing\n- Support 6 pattern types: version, underscore_number, trailing_number, leading_number_underscore, leading_number_no_underscore, no_number\n\nExamples:\n- Select Folie7.jpg + Folie8.jpg → Creates Folie9.jpg + Folie10.jpg (no conflicts)\n- 01_test.jpg → 02_test.jpg (leading numbers with underscore)\n- 01test.jpg → 02test.jpg (leading numbers without underscore)\n- All patterns work with multi-file selection logic\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
