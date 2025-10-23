@@ -62,6 +62,19 @@ class Duplicate(DirectoryPaneCommand):
 				if exists(name + ext):
 					show_alert("File already exists " + basename(name + ext))
 					continue
+			# check if filename ends with digits (without underscore, e.g., "Folie8")
+			elif re.search(r'\d+$', name):
+				match = re.search(r'(\d+)$', name)
+				trailing_number = match.group(1)
+				digitLength = len(trailing_number)
+				digit = int(trailing_number)
+				digit += 1
+				digitString = str(digit).zfill(digitLength)
+				# replace the trailing number with the incremented one
+				name = name[:match.start()] + digitString
+				if exists(name + ext):
+					show_alert("File already exists " + basename(name + ext))
+					continue
 			else:
 				name = name + "_copy"
 
