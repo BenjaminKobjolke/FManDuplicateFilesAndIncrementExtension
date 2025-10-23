@@ -21,16 +21,34 @@ class Duplicate(DirectoryPaneCommand):
 				return			
 
 		# iterate paths
-		for path in paths:						
-			name, ext = os.path.splitext(path)	
+		for path in paths:
+			name, ext = os.path.splitext(path)
 			# split string on underscore
 			name_split = name.split("_")
 			# get last element
 			last_element = name_split[-1]
-			
-			# check if last element is a number
-			if re.match(r'\d+', last_element):
-				#show_alert(last_element)	
+
+			# check if last element is a version pattern (e.g., "v3", "v03")
+			if re.match(r'^v\d+$', last_element, re.IGNORECASE):
+				# all elements except last
+				filename = name_split[:-1]
+				# join elements
+				filename = "_".join(filename)
+				# extract the number part after 'v'
+				version_num = re.search(r'\d+', last_element).group()
+				digitLength = len(version_num)
+				digit = int(version_num)
+				digit += 1
+				digitString = str(digit)
+				# preserve original case of 'v' or 'V'
+				v_prefix = last_element[0]
+				name = filename + "_" + v_prefix + digitString.zfill(digitLength)
+				if exists(name + ext):
+					show_alert("File already exists " + basename(name + ext))
+					continue
+			# check if last element is a pure number (e.g., "01", "123")
+			elif re.match(r'^\d+$', last_element):
+				#show_alert(last_element)
 				# all elements except last
 				filename = name_split[:-1]
 				# join elements
@@ -44,7 +62,7 @@ class Duplicate(DirectoryPaneCommand):
 				if exists(name + ext):
 					show_alert("File already exists " + basename(name + ext))
 					continue
-			else: 
+			else:
 				name = name + "_copy"
 
 			copypath = name +  ext
