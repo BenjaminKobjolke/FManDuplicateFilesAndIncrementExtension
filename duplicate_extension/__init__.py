@@ -9,7 +9,7 @@ class Duplicate(DirectoryPaneCommand):
 	def _extract_pattern_info(self, path):
 		"""Extract base pattern, number, and metadata from a filename.
 		Returns: (pattern_type, base_pattern, number, digit_length, ext, v_prefix)
-		pattern_type: 'version', 'underscore_number', 'trailing_number', 'leading_number_underscore', 'leading_number_no_underscore', 'no_number'
+		pattern_type: 'version', 'underscore_number', 'trailing_number', 'leading_number_underscore', 'leading_number_no_underscore', 'pure_number', 'no_number'
 		"""
 		name, ext = os.path.splitext(path)
 		name = basename(name)  # Extract just the filename, not the full path
@@ -28,9 +28,15 @@ class Duplicate(DirectoryPaneCommand):
 		# check if last element is a pure number (e.g., "01", "123")
 		elif re.match(r'^\d+$', last_element):
 			filename = "_".join(name_split[:-1])
-			digit_length = len(last_element)
-			number = int(last_element)
-			return ('underscore_number', filename, number, digit_length, ext, None)
+			# If filename is empty, this is a pure number (e.g., "260")
+			if not filename:
+				digit_length = len(last_element)
+				number = int(last_element)
+				return ('pure_number', '', number, digit_length, ext, None)
+			else:
+				digit_length = len(last_element)
+				number = int(last_element)
+				return ('underscore_number', filename, number, digit_length, ext, None)
 
 		# check if filename ends with digits (without underscore, e.g., "Folie8")
 		elif re.search(r'\d+$', name):
@@ -85,6 +91,8 @@ class Duplicate(DirectoryPaneCommand):
 				candidate = str(current_number).zfill(digit_length) + "_" + base_pattern
 			elif pattern_type == 'leading_number_no_underscore':
 				candidate = str(current_number).zfill(digit_length) + base_pattern
+			elif pattern_type == 'pure_number':
+				candidate = str(current_number).zfill(digit_length)
 			else:
 				candidate = base_pattern + "_copy"
 
