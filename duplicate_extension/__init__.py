@@ -155,10 +155,26 @@ class Duplicate(DirectoryPaneCommand):
 			pattern_type, base_pattern, ext, digit_length, v_prefix = key
 
 			if pattern_type == 'no_number':
-				# Files without numbers get _copy suffix
-				for path, _ in file_list:
-					name, _ = self._get_filename_parts(path)
-					path_to_target[path] = name + "_copy"
+				# Files without numbers get _01, _02, etc. with leading zero
+				# Get directory URL for checking existing files
+				base_path = dirname(file_list[0][0])
+
+				# Use underscore_number pattern with 2-digit format starting from 01
+				available_names = self._find_next_available_filenames(
+					base_path,
+					base_pattern,
+					1,  # Start from 01
+					len(file_list),
+					2,  # Always use 2 digits (01, 02, ...)
+					ext,
+					'underscore_number',
+					None
+				)
+
+				# Assign available names to paths
+				for i, (path, _) in enumerate(file_list):
+					if i < len(available_names):
+						path_to_target[path] = available_names[i]
 			else:
 				# Find the highest number in this group
 				max_number = max(num for _, num in file_list)
