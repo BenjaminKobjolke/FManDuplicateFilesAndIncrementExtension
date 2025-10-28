@@ -6,13 +6,20 @@ import os.path
 import re
 
 class Duplicate(DirectoryPaneCommand):
+	def _get_filename_parts(self, path):
+		"""Extract filename and extension from fman URL path.
+		Returns: (filename_without_ext, ext)
+		"""
+		name, ext = os.path.splitext(path)
+		name = basename(name)
+		return name, ext
+
 	def _extract_pattern_info(self, path):
 		"""Extract base pattern, number, and metadata from a filename.
 		Returns: (pattern_type, base_pattern, number, digit_length, ext, v_prefix)
 		pattern_type: 'version', 'underscore_number', 'trailing_number', 'leading_number_underscore', 'leading_number_no_underscore', 'pure_number', 'no_number'
 		"""
-		name, ext = os.path.splitext(path)
-		name = basename(name)  # Extract just the filename, not the full path
+		name, ext = self._get_filename_parts(path)
 		name_split = name.split("_")
 		last_element = name_split[-1]
 
@@ -150,7 +157,7 @@ class Duplicate(DirectoryPaneCommand):
 			if pattern_type == 'no_number':
 				# Files without numbers get _copy suffix
 				for path, _ in file_list:
-					name, file_ext = os.path.splitext(path)
+					name, _ = self._get_filename_parts(path)
 					path_to_target[path] = name + "_copy"
 			else:
 				# Find the highest number in this group
@@ -183,7 +190,7 @@ class Duplicate(DirectoryPaneCommand):
 		for path in paths:
 			if path in path_to_target:
 				target_name = path_to_target[path]
-				_, ext = os.path.splitext(path)
+				_, ext = self._get_filename_parts(path)
 
 				# Construct full path: directory + target filename
 				base_path = dirname(path)
